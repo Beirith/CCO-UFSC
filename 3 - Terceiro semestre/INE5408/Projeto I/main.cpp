@@ -12,10 +12,6 @@
 struct Coordenadas {
     int x;
     int y;
-    
-    bool operator==(const Coordenadas& other) const {
-        return x == other.x && y == other.y;
-    }
 };
 
 int operacaoRobo(int** matriz_cenario, int** matriz_zero, int altura, int largura, int robo_x, int robo_y) {
@@ -32,6 +28,7 @@ int operacaoRobo(int** matriz_cenario, int** matriz_zero, int altura, int largur
     } else {
         matriz_zero[robo_x][robo_y] = 0;
     }
+
 
     while(!fila.empty()) {
 
@@ -89,7 +86,7 @@ int operacaoRobo(int** matriz_cenario, int** matriz_zero, int altura, int largur
     return casasLimpas;
 }
 
-bool validarXML(std::string nomearquivo) {
+bool validar(std::string nomearquivo) {
 
     char caractere;
     bool aberta = false;
@@ -196,10 +193,9 @@ int** matrizGerador(const std::string& matriz_string, int altura, int largura, b
         matriz[i] = new int[largura];
         for (int j = 0; j < largura; j++) {
             char valor = matriz_valores[i * largura + j];
-            if (valor == '0' || valor == '1') {
-                // Dependendo da condição booleana é atribuído o valor da string ou 0
-                matriz[i][j] = zero ? 0 : valor - '0';
-            }
+            // Dependendo da condição booleana é atribuído o valor da string ou 0
+            matriz[i][j] = zero ? 0 : valor - '0';
+            
         }
     }
     return matriz;
@@ -213,25 +209,25 @@ int main() {
     
     // Chama a função que faz a validação do arquivo.xml
     // e caso não seja válido, imprime erro 
-    if (!validarXML(xmlfilename)) {
+    if (!validar(xmlfilename)) {
         std::cout << "erro" << std::endl;
         return 1;
     }
 
     // Transforma todo o conteúdo do .xml em uma string
     std::ifstream arquivo(xmlfilename);
-    std::ostringstream ss;
-    ss << arquivo.rdbuf();
-    std::string file = ss.str();
+    std::ostringstream saved_string;
+    saved_string << arquivo.rdbuf();
+    std::string file = saved_string.str();
 
 
     // Verifica o número de cenários no .xml
     int num_cenarios = 0;
-    std::size_t init = 0;
+    std::size_t pos = 0;
     std::string tag = "<cenario>";
-    while ((init = file.find(tag, init)) != std::string::npos) {
+    while ((pos = file.find(tag, pos)) != std::string::npos) {
         num_cenarios++;
-        init += tag.length();
+        pos += tag.length();
     }
 
     // Realiza as operações para a quatidade de cenários obtida

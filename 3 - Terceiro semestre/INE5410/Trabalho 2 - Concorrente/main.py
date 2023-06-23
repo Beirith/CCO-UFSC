@@ -1,4 +1,4 @@
-import multiprocessing
+from multiprocessing import Process
 import threading
 import time
 import sys

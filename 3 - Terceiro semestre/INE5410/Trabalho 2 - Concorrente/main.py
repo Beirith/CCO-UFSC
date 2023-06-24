@@ -63,7 +63,9 @@ def lerArquivo(nArquivo):
     
     return tabuleiros
           
-def criaProcessos(processos, nProcess, nThreads, tabuleiros):
+def criaProcessos(nProcess, nThreads, tabuleiros):
+    processos = []
+
     # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
     if len(tabuleiros) < nProcess:
         nProcess = int(len(tabuleiros))
@@ -72,10 +74,12 @@ def criaProcessos(processos, nProcess, nThreads, tabuleiros):
     if 81 < nThreads:
         nThreads = 81
     
-
-
-
-
+    # Cria os processos. 
+    for i in range(nProcess):
+        nome = "Processo " + str(i)
+        processos.append(Processo(nome, nThreads, []))
+    
+    # Divide os tabuleiros entre os processos.
     for i in range(len(tabuleiros)):
         processos[i % nProcess].tabuleiros.append(tabuleiros[i])
     
@@ -92,21 +96,11 @@ def main():
     nArquivo = argumentos[0]
     nProcess = int(argumentos[1])
     nThreads = int(argumentos[2])
-    processos = []
 
     # Lê o arquivo e armazena o conteúdo em uma lista, que contém todos os tabuleiros.
     tabuleiros = lerArquivo(nArquivo)
 
-
-    # Para que não hajam threads ociosas, o número de threads é limitado pelo número de células do tabuleiro.
-    if 81 < nThreads:
-        nThreads = 81
-    
-    for i in range(nProcess):
-        nome = "Processo " + str(i)
-        processos.append(Processo(nome, nThreads, []))
-
-    criaProcessos(processos, nProcess, nThreads, tabuleiros)
+    criaProcessos(nProcess, nThreads, tabuleiros)
 
 
 if __name__ == '__main__':

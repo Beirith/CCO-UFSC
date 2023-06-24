@@ -1,5 +1,5 @@
-from multiprocessing import Process
-from threading import Thread, Lock
+from class_process import Processo
+import multiprocessing
 import threading
 import time
 import sys
@@ -19,7 +19,7 @@ def validaEntrada():
         else:
             nome = entry[0]
             nProcess = entry[1]
-            nThread = entry[2]
+            nThreads = entry[2]
 
             try:
                 file = open(nome)
@@ -31,21 +31,21 @@ def validaEntrada():
                 continue
 
             # Verifica se o número de processos e threads é um inteiro positivo.
-            if not nProcess.isdigit() or not nThread.isdigit():
+            if not nProcess.isdigit() or not nThreads.isdigit():
                 print('Erro! O número de processos e o número de threads devem ser inteiros positivos!')
                 print()
                 continue
 
             # Verifica se o número de processos e threads é maior do que zero.
-            elif (int(nProcess) < 1) or (int(nThread) < 1):
+            elif (int(nProcess) < 1) or (int(nThreads) < 1):
                 print("ERRO! O número de processos e o número de threads devem ser maiores que zero!")
                 print()
 
             else:
                 return entry
 
-def lerArquivo(nome):
-    with open(nome, 'r') as file:
+def lerArquivo(nArquivo):
+    with open(nArquivo, 'r') as file:
         lista = []
         tabuleiros = []
         contador = 0
@@ -63,12 +63,25 @@ def lerArquivo(nome):
     
     return tabuleiros
           
-def dividirTrabalho(nProcess, nThread, tabuleiros):
+def criaProcessos(processos, nProcess, nThreads, tabuleiros):
+    # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
+    if len(tabuleiros) < nProcess:
+        nProcess = int(len(tabuleiros))
+    
+    # Para que não hajam threads ociosas, o número de threads é limitado pelo número de células do tabuleiro.
+    if 81 < nThreads:
+        nThreads = 81
+    
+
+
+
+
+    for i in range(len(tabuleiros)):
+        processos[i % nProcess].tabuleiros.append(tabuleiros[i])
+    
     for i in range(nProcess):
-        # Cria um processo e atribui a ele uma função e os argumentos que serão passados para a função.
-        p = multiprocessing.Process(target=verificaErro, args=(nThread, tabuleiros[i]))
-        p.start()
-    pass
+        processos[i].printProcesso()
+    
 
 def verificaErro():
     pass
@@ -76,19 +89,25 @@ def verificaErro():
 def main():
     # Chama a função que valida a entrada do usuário e atribui os valores de retorno as variáveis.
     argumentos = validaEntrada()
-    nome = argumentos[0]
+    nArquivo = argumentos[0]
     nProcess = int(argumentos[1])
-    nThread = int(argumentos[2])
+    nThreads = int(argumentos[2])
+    processos = []
 
     # Lê o arquivo e armazena o conteúdo em uma lista, que contém todos os tabuleiros.
-    tabuleiros = lerArquivo(nome)
+    tabuleiros = lerArquivo(nArquivo)
 
-    # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
-    if len(tabuleiros) > nProcess:
-        nProcess = len(tabuleiros)
 
-    dividirTrabalho(nProcess, nThread, tabuleiros)
-    verificaErro()
+    # Para que não hajam threads ociosas, o número de threads é limitado pelo número de células do tabuleiro.
+    if 81 < nThreads:
+        nThreads = 81
+    
+    for i in range(nProcess):
+        nome = "Processo " + str(i)
+        processos.append(Processo(nome, nThreads, []))
+
+    criaProcessos(processos, nProcess, nThreads, tabuleiros)
+
 
 if __name__ == '__main__':
     main()

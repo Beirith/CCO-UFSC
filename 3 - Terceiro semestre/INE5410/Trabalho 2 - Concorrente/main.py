@@ -107,8 +107,6 @@ def main():
     for i in range(len(processos)):
         processos[i].processo.join()
         
-
-
 if __name__ == '__main__':
     main()
 

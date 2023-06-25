@@ -63,33 +63,31 @@ def lerArquivo(nArquivo):
     
     return tabuleiros
           
-def criaProcessos(nProcess, nThreads, tabuleiros):
+def criaObjetoProcesso(nProcess, nThreads, tabuleiros):
     processos = []
 
     # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
     if len(tabuleiros) < nProcess:
         nProcess = int(len(tabuleiros))
     
-    # Para que não hajam threads ociosas, o número de threads é limitado pelo número de células do tabuleiro.
-    if 81 < nThreads:
-        nThreads = 81
+    # Para que não hajam threads ociosas, o número de threads é limitado pela soma de linhas, colunas e regiões.
+    if 27 < nThreads:
+        nThreads = 27
     
     # Cria os processos. 
     for i in range(nProcess):
-        nome = "Processo " + str(i)
-        processos.append(Processo(nome, nThreads, []))
+        nome = "Processo " + str(i+1)
+        processo = Processo(nome, nThreads, {})
+        processo.criaProcesso()
+        processos.append(processo)
+
     
     # Divide os tabuleiros entre os processos.
     for i in range(len(tabuleiros)):
-        processos[i % nProcess].tabuleiros.append(tabuleiros[i])
+        processos[i % nProcess].tabuleiros[i+1] = tabuleiros[i]
     
-    for i in range(nProcess):
-        processos[i].printProcesso()
+    return processos
     
-
-def verificaErro():
-    pass
-
 def main():
     # Chama a função que valida a entrada do usuário e atribui os valores de retorno as variáveis.
     argumentos = validaEntrada()
@@ -100,7 +98,15 @@ def main():
     # Lê o arquivo e armazena o conteúdo em uma lista, que contém todos os tabuleiros.
     tabuleiros = lerArquivo(nArquivo)
 
-    criaProcessos(nProcess, nThreads, tabuleiros)
+    # Cria os processos e divide os tabuleiros entre eles. 
+    processos = criaObjetoProcesso(nProcess, nThreads, tabuleiros)
+
+    for i in range(len(processos)):
+        processos[i].processo.start()
+    
+    for i in range(len(processos)):
+        processos[i].processo.join()
+        
 
 
 if __name__ == '__main__':

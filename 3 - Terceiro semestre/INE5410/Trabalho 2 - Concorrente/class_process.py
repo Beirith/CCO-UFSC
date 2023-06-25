@@ -41,25 +41,24 @@ class Processo():
             errosTabuleiro = []
             for i in range(9):
                 celulas = []
-                for j in range(9):
-                    celulas.append(self.tabuleiros[tabuleiro][(j*i)%9][i % 9])
+                for j in range(3):
+                    for k in range(3):
+                        celulas.append(self.tabuleiros[tabuleiro][j][k])
                 celulas.sort()
                 for j in range(len(celulas)-1):
                     if celulas[j] == celulas[j+1]:
-                        errosTabuleiro.append(f'R{i+1}')
+                        errosTabuleiro.append(f'C{i+1}')
                         break
                 self.erros[tabuleiro] = errosTabuleiro
         print(self.erros)
 
-#ETA PORRA, CARALHO!!!
-# MARKIN, MARKIN WF, O BRABO DE BH!!!
     def criaThreads(self):
         for i in range(self.nThreads):
             thread = threading.Thread(target=self.validaColuna)
             thread.start()
     
     def criaProcesso(self):
-        self.processo = multiprocessing.Process(target=self.validaRegiao)
+        self.processo = multiprocessing.Process(target=self.validaColuna)
 
     def printProcesso(self):
         print(self.nome)

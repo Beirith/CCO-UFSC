@@ -1,6 +1,6 @@
 import multiprocessing
 from multiprocessing import Barrier, Lock
-from teste import *
+from processo import *
 
 def validaEntrada():
     while True:

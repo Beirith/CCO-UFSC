@@ -1,6 +1,5 @@
 import threading
 
-
 # Função que divide o tabuleiro em colunas.
 def divideColunas(tabuleiro):
     for i in range(9):
@@ -47,7 +46,6 @@ def rotinaThread(*args):
             erros.append(f"{tipo}{num}")
     #print(erros)
 
-
     # # Indicia se é coluna, linha ou região
     # tipo = args[0]
 
@@ -89,7 +87,6 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
             thread = threading.Thread(target=rotinaThread, args=threadArgs[k])
             threads.append(thread)
 
-        
         
         for z in range(numThreads):
             threads[z].start()

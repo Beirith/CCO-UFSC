@@ -20,28 +20,31 @@ def divideRegioes(tabuleiro):
             tabuleiro.append(celulas)
     return tabuleiro
 
-def verificaRepeticao(array, local, numero):
-    pass
+# Função que verifica se há repetições em determinado espaço.
+def verificaRepeticao(array):
+    if isinstance(array, str):
+        array_aux = array
+        array = ''.join(sorted(array_aux))
+    else:
+        array.sort()
+
+    for i in range(len(array)-1):
+            if array[i] == array[i+1]:
+                return True
+    
+    return False
+
 
 def rotinaThread(*args):
+    erros = []
     for i in range(len(args)):
         tipo = args[i][0]
         num = args[i][1]
-        erros = args[i][2]
         array = args[i][3]
 
-        verificaRepeticao(array, tipo, num)
-
-        if isinstance(array, str):
-            array_aux = array
-            array = ''.join(sorted(array_aux))
-        else:
-            array.sort()
-
-        for j in range(len(array)-1):
-            if array[j] == array[j+1]:
-                erros.append(tipo + f'{num}')
-                break
+        if verificaRepeticao(array):
+            erros.append(f"{tipo}{num}")
+    #print(erros)
 
     # # Indicia se é coluna, linha ou região
     # tipo = args[0]
@@ -55,10 +58,13 @@ def rotinaThread(*args):
     # # Array de células que serão verificadas
     # array = args[3]
 
-def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros):
+def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
+                    lock):
 
     for i in range(len(tabuleiros)):
-        print('Processo ', processID, ': resolvendo quebra-cabeças: ', idTabuleiros[i])
+        with lock:
+            print('Processo ', processID, ': resolvendo quebra-cabeças: ', 
+                  idTabuleiros[i])
 
         threadArgs = []
         threads = []
@@ -80,6 +86,7 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros):
         for k in range(numThreads):
             thread = threading.Thread(target=rotinaThread, args=threadArgs[k])
             threads.append(thread)
+
         
         for z in range(numThreads):
             threads[z].start()

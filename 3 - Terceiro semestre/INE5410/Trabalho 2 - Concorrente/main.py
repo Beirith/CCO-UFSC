@@ -1,4 +1,5 @@
 import multiprocessing
+from multiprocessing import Barrier, Lock
 from teste import *
 
 def validaEntrada():
@@ -68,6 +69,9 @@ def criaProcesso(nProcess, nThreads, tabuleiros):
     # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
     if len(tabuleiros) < nProcess:
         nProcess = int(len(tabuleiros))
+
+    barreira = Barrier(nProcess)
+    lock = Lock()
     
     # Para que não hajam threads ociosas, o número de threads é limitado pela soma de linhas, colunas e regiões.
     if 27 < nThreads:
@@ -85,9 +89,11 @@ def criaProcesso(nProcess, nThreads, tabuleiros):
 
     
     for i in range(nProcess):
-        novoProcesso = multiprocessing.Process(target=validaTabuleiro, args=(i+1, tabuleiroProcesso[i], nThreads, idTabuleiros[i]))
+        novoProcesso = multiprocessing.Process(target=validaTabuleiro, 
+                                               args=(i+1, tabuleiroProcesso[i], 
+                                                     nThreads, idTabuleiros[i], 
+                                                     barreira, lock))
         processos.append(novoProcesso)
-
     return processos
     
 def main():

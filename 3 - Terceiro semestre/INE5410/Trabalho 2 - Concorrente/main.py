@@ -1,8 +1,14 @@
+<<<<<<< Updated upstream
 from multiprocessing import Process
 from threading import Thread, Lock
 import threading
 import time
 import sys
+=======
+import multiprocessing
+from multiprocessing import Barrier, Lock
+from teste import *
+>>>>>>> Stashed changes
 
 def validaEntrada():
     while True:
@@ -63,15 +69,45 @@ def lerArquivo(nome):
     
     return tabuleiros
           
+<<<<<<< Updated upstream
 def dividirTrabalho(nProcess, nThread, tabuleiros):
+=======
+def criaProcesso(nProcess, nThreads, tabuleiros):
+    processos = []
+    tabuleiroProcesso = []
+    idTabuleiros = []
+
+    # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
+    if len(tabuleiros) < nProcess:
+        nProcess = int(len(tabuleiros))
+
+    barreira = Barrier(nProcess)
+    lock = Lock()
+    
+    # Para que não hajam threads ociosas, o número de threads é limitado pela soma de linhas, colunas e regiões.
+    if 27 < nThreads:
+        nThreads = 27
+    
+    # Cria os processos. 
+>>>>>>> Stashed changes
     for i in range(nProcess):
         # Cria um processo e atribui a ele uma função e os argumentos que serão passados para a função.
         p = multiprocessing.Process(target=verificaErro, args=(nThread, tabuleiros[i]))
         p.start()
     pass
 
+<<<<<<< Updated upstream
 def verificaErro():
     pass
+=======
+    
+    for i in range(nProcess):
+        novoProcesso = multiprocessing.Process(target=validaTabuleiro, 
+                                               args=(i+1, tabuleiroProcesso[i], 
+                                                     nThreads, idTabuleiros[i], 
+                                                     barreira, lock))
+        processos.append(novoProcesso)
+>>>>>>> Stashed changes
 
 def main():
     # Chama a função que valida a entrada do usuário e atribui os valores de retorno as variáveis.

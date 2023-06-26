@@ -1,8 +1,5 @@
-from class_process import Processo
 import multiprocessing
-import threading
-import time
-import sys
+from teste import *
 
 def validaEntrada():
     while True:
@@ -63,8 +60,10 @@ def lerArquivo(nArquivo):
     
     return tabuleiros
           
-def criaObjetoProcesso(nProcess, nThreads, tabuleiros):
+def criaProcesso(nProcess, nThreads, tabuleiros):
     processos = []
+    tabuleiroProcesso = []
+    idTabuleiros = []
 
     # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
     if len(tabuleiros) < nProcess:
@@ -76,16 +75,19 @@ def criaObjetoProcesso(nProcess, nThreads, tabuleiros):
     
     # Cria os processos. 
     for i in range(nProcess):
-        nome = "Processo " + str(i+1)
-        processo = Processo(nome, nThreads, {})
-        processo.criaProcesso()
-        processos.append(processo)
-
-    
+        tabuleiroProcesso.append([])
+        idTabuleiros.append([])
+        
     # Divide os tabuleiros entre os processos.
     for i in range(len(tabuleiros)):
-        processos[i % nProcess].tabuleiros[i+1] = tabuleiros[i]
+        tabuleiroProcesso[i % nProcess].append(tabuleiros[i])
+        idTabuleiros[i % nProcess].append(i+1)
+
     
+    for i in range(nProcess):
+        novoProcesso = multiprocessing.Process(target=validaTabuleiro, args=(i+1, tabuleiroProcesso[i], nThreads, idTabuleiros[i]))
+        processos.append(novoProcesso)
+
     return processos
     
 def main():
@@ -99,15 +101,13 @@ def main():
     tabuleiros = lerArquivo(nArquivo)
 
     # Cria os processos e divide os tabuleiros entre eles. 
-    processos = criaObjetoProcesso(nProcess, nThreads, tabuleiros)
+    processos = criaProcesso(nProcess, nThreads, tabuleiros)
 
     for i in range(len(processos)):
-        processos[i].processo.start()
+        processos[i].start()
     
     for i in range(len(processos)):
-        processos[i].processo.join()
+        processos[i].join()
         
 if __name__ == '__main__':
     main()
-
-

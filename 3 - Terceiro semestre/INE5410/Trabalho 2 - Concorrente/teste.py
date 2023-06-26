@@ -65,7 +65,8 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
 
     for i in range(len(tabuleiros)):
         with lock:
-            print('Processo ', processID, ': resolvendo quebra-cabeças: ', idTabuleiros[i])
+            print('Processo ', processID, ': resolvendo quebra-cabeças: ', 
+                  idTabuleiros[i])
 
         threadArgs = []
         threads = []

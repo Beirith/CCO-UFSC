@@ -1,6 +1,7 @@
 import multiprocessing
-from multiprocessing import Barrier, Lock
+from multiprocessing import Lock
 from processo import *
+import time
 
 def validaEntrada():
     while True:
@@ -61,17 +62,15 @@ def lerArquivo(nArquivo):
     
     return tabuleiros
           
-def criaProcesso(nProcess, nThreads, tabuleiros):
+def criaProcesso(nProcess, nThreads):
     processos = []
     tabuleiroProcesso = []
     idTabuleiros = []
+    lock = Lock()
 
     # Para que não hajam processos ociosos, o número de processos é limitado pelo número de tabuleiros.
     if len(tabuleiros) < nProcess:
         nProcess = int(len(tabuleiros))
-
-    barreira = Barrier(nProcess)
-    lock = Lock()
     
     # Para que não hajam threads ociosas, o número de threads é limitado pela soma de linhas, colunas e regiões.
     if 27 < nThreads:
@@ -87,12 +86,11 @@ def criaProcesso(nProcess, nThreads, tabuleiros):
         tabuleiroProcesso[i % nProcess].append(tabuleiros[i])
         idTabuleiros[i % nProcess].append(i+1)
 
-    
     for i in range(nProcess):
         novoProcesso = multiprocessing.Process(target=validaTabuleiro, 
                                                args=(i+1, tabuleiroProcesso[i], 
                                                      nThreads, idTabuleiros[i], 
-                                                     barreira, lock))
+                                                     lock))
         processos.append(novoProcesso)
     return processos
     
@@ -103,17 +101,28 @@ def main():
     nProcess = int(argumentos[1])
     nThreads = int(argumentos[2])
 
+    global tabuleiros
+
     # Lê o arquivo e armazena o conteúdo em uma lista, que contém todos os tabuleiros.
     tabuleiros = lerArquivo(nArquivo)
 
     # Cria os processos e divide os tabuleiros entre eles. 
-    processos = criaProcesso(nProcess, nThreads, tabuleiros)
+    processos = criaProcesso(nProcess, nThreads)
+
+    start_time = time.time()
 
     for i in range(len(processos)):
         processos[i].start()
     
     for i in range(len(processos)):
         processos[i].join()
-        
+
+    end_time = time.time()
+
+    final_time = end_time - start_time
+
+    print("Tempo de execução:", final_time, "segundos")
+    
 if __name__ == '__main__':
-    main()
+    while True:
+        main()

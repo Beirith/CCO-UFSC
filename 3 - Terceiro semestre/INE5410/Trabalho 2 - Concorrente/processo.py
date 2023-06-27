@@ -1,6 +1,5 @@
 import threading
 
-# Função que divide o tabuleiro em colunas.
 def divideTabuleiro(tabuleiro):
     for i in range(9):
         celulas = []
@@ -14,6 +13,8 @@ def divideTabuleiro(tabuleiro):
             for k in range(3):
                 for l in range(3):
                     celulas.append(tabuleiro[i*3+k][j*3+l])
+            tabuleiro.append(celulas)
+        
     return tabuleiro    
 
 # Função que verifica se há repetições em determinado espaço.
@@ -31,16 +32,17 @@ def verificaRepeticao(array):
 
 def rotinaThread(*args):
     for i in range(len(args)):
+        lock = args[i][4]
         tipo = args[i][0]
         num = args[i][1]
         array = args[i][3]
 
         if verificaRepeticao(array):
             errosTabuleiro[args[i][2]].append(f"{tipo}{num}")
-            errosTabuleiro['quantidade'].append(1)
+            with lock:
+                errosTabuleiro['quantidade'].append(1)
         
-def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
-                    lock):
+def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, lock):
     global errosTabuleiro
 
     for i in range(len(tabuleiros)):
@@ -59,39 +61,49 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
         for j in range(len(tabuleiros[i])):
             array = tabuleiros[i][j]
             if j < 9:
-                threadArgs[j % numThreads].append(['L', (j%9)+1, (j % numThreads)+1, array])
+                threadArgs[j % numThreads].append(['L', (j%9)+1, 
+                                                   (j % numThreads)+1, array, 
+                                                   lock])
             elif j < 18:
-                threadArgs[j % numThreads].append(['C', (j%9)+1, (j % numThreads)+1, array])
+                threadArgs[j % numThreads].append(['C', (j%9)+1, 
+                                                   (j % numThreads)+1, array, 
+                                                   lock])
             else:
-                threadArgs[j % numThreads].append(['R', (j%9)+1, (j % numThreads)+1, array])
+                threadArgs[j % numThreads].append(['R', (j%9)+1, 
+                                                   (j % numThreads)+1, array, 
+                                                   lock])
 
         for k in range(numThreads):
             thread = threading.Thread(target=rotinaThread, args=threadArgs[k])
             threads.append(thread)
-
-        for z in range(numThreads):
-            threads[z].start()
+            threads[k].start()
 
         for z in range(numThreads):
             threads[z].join()
         
-
-        print('Processo %d: %d erros encontrados' % (processID, len(errosTabuleiro['quantidade'])), end=' ')
+        f = True
+        print('Processo %d: %d erros encontrados' % (processID, 
+                                                     len(errosTabuleiro['quantidade'])), end=' ')
         if len(errosTabuleiro['quantidade']) == 0:
             print()
-            break
+            continue
         else:
             errosTabuleiro.pop('quantidade')
             print('(', end='')
+
             for thread in errosTabuleiro:
                 if errosTabuleiro[thread] == []:
                     continue
 
-                print('T%d:' % thread, end=' ')
-                if errosTabuleiro[thread] != []:
-                    for i in range(len(errosTabuleiro[thread])):
-                        if i == len(errosTabuleiro[thread])-1:
-                            print(f'{errosTabuleiro[thread][i]};', end=' ')
-                        else:
-                            print(f'{errosTabuleiro[thread][i]},', end=' ')
+                if f: 
+                    f = False
+                    print('T%d:' % thread, end=' ')
+                else: 
+                    print(' T%d:' % thread, end=' ')
+                
+                for i in range(len(errosTabuleiro[thread])):
+                    if i == len(errosTabuleiro[thread])-1:
+                        print(f'{errosTabuleiro[thread][i]};', end='')
+                    else:
+                        print(f'{errosTabuleiro[thread][i]},', end=' ')
         print(')')

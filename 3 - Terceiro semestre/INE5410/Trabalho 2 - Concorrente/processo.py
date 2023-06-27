@@ -1,24 +1,20 @@
 import threading
 
 # Função que divide o tabuleiro em colunas.
-def divideColunas(tabuleiro):
+def divideTabuleiro(tabuleiro):
     for i in range(9):
         celulas = []
         for j in range(9):
             celulas.append(tabuleiro[j][i])
         tabuleiro.append(celulas)
-    return tabuleiro    
-
-# Função que divide o tabuleiro em regiões.
-def divideRegioes(tabuleiro):
+    
     for i in range(3):
         for j in range(3):
             celulas = []
             for k in range(3):
                 for l in range(3):
                     celulas.append(tabuleiro[i*3+k][j*3+l])
-            tabuleiro.append(celulas)
-    return tabuleiro
+    return tabuleiro    
 
 # Função que verifica se há repetições em determinado espaço.
 def verificaRepeticao(array):
@@ -58,8 +54,7 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
             threadArgs.append([]) 
             errosTabuleiro[l+1] = []
 
-        tabuleiros[i] = divideColunas(tabuleiros[i])
-        tabuleiros[i] = divideRegioes(tabuleiros[i])
+        tabuleiros[i] = divideTabuleiro(tabuleiros[i])
 
         for j in range(len(tabuleiros[i])):
             array = tabuleiros[i][j]
@@ -82,17 +77,21 @@ def validaTabuleiro(processID, tabuleiros, numThreads, idTabuleiros, barreira,
         
 
         print('Processo %d: %d erros encontrados' % (processID, len(errosTabuleiro['quantidade'])), end=' ')
-        errosTabuleiro.pop('quantidade')
-        for thread in errosTabuleiro:
-            if errosTabuleiro[thread] == []:
-                continue
+        if len(errosTabuleiro['quantidade']) == 0:
+            print()
+            break
+        else:
+            errosTabuleiro.pop('quantidade')
+            print('(', end='')
+            for thread in errosTabuleiro:
+                if errosTabuleiro[thread] == []:
+                    continue
 
-            print(f'T{thread}:', end=' ')
-            if errosTabuleiro[thread] != []:
-                for i in range(len(errosTabuleiro[thread])):
-                    if i == len(errosTabuleiro[thread])-1:
-                        print(f'{errosTabuleiro[thread][i]}', end=' ')
-                    else:
-                        print(f'{errosTabuleiro[thread][i]}, ', end=' ')
-        
-        print()
+                print('T%d:' % thread, end=' ')
+                if errosTabuleiro[thread] != []:
+                    for i in range(len(errosTabuleiro[thread])):
+                        if i == len(errosTabuleiro[thread])-1:
+                            print(f'{errosTabuleiro[thread][i]};', end=' ')
+                        else:
+                            print(f'{errosTabuleiro[thread][i]},', end=' ')
+        print(')')

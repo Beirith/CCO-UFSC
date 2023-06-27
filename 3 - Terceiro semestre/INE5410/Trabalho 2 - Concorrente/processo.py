@@ -17,7 +17,6 @@ def divideTabuleiro(tabuleiro):
         
     return tabuleiro    
 
-# Função que verifica se há repetições em determinado espaço.
 def verificaRepeticao(array):
     if isinstance(array, str):
         array_aux = array
